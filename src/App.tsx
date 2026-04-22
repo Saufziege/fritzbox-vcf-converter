@@ -186,9 +186,14 @@ function App() {
                                 placeholder="Das Ergebnis der Konvertierung wird hier angezeigt."
                             />
                             {outputText && (
-                                <button onClick={handleDownload} className="btn btn-primary">
-                                    Herunterladen
-                                </button>
+                                <div className="mt-4">
+                                    <button
+                                        onClick={handleDownload}
+                                        className="btn btn-primary w-full text-lg font-semibold px-8 py-3 transition-transform transform hover:scale-105"
+                                    >
+                                        Herunterladen
+                                    </button>
+                                </div>
                             )}
                         </div>
                     </div>
