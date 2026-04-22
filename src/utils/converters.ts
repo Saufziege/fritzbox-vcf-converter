@@ -242,21 +242,61 @@ function parseVCardBlock(block: string): VCardContact | null {
     return contact
 }
 
-function mapVCardTypesToFritzType(types: string[]): FritzTelephonyType {
-    const normalized = types.map((t) => t.toLowerCase())
-    if (normalized.some((item) => item.includes('fax'))) {
-        return 'fax_work'
+export function vcfToFritzXml(
+    vcfText: string,
+    options?: { areaCode?: string; countryCode?: string },
+): string {
+    const contacts = vcfText
+        .split('BEGIN:VCARD')
+        .map((block) => (block.trim() ? parseVCardBlock(`BEGIN:VCARD\n${block}`) : null))
+        .filter((c): c is VCardContact => !!c)
+
+    if (contacts.length === 0) {
+        throw new Error('Keine gültigen vCard-Kontakte gefunden.')
     }
-    if (normalized.some((item) => item === 'cell' || item === 'mobile')) {
-        return 'mobile'
+
+    const xmlLines: string[] = [
+        '<?xml version="1.0" encoding="UTF-8"?>',
+        '<phonebooks>',
+        '  <phonebook name="Telefonbuch">',
+    ]
+
+    for (const contact of contacts) {
+        const realName = contact.lastName
+            ? `${contact.lastName}, ${contact.firstName}`.trim()
+            : contact.fullName
+
+        xmlLines.push('    <contact>')
+        xmlLines.push('      <person>')
+        xmlLines.push(`        <realName>${escapeXml(realName)}</realName>`)
+        xmlLines.push('      </person>')
+        xmlLines.push('      <telephony>')
+
+        for (const phone of contact.phones) {
+            const type = mapVCardTypesToFritzType(phone.types)
+            const formatted = formatPhoneNumber(
+                phone.value,
+                options?.areaCode,
+                options?.countryCode,
+            )
+            xmlLines.push(`        <number type="${type}">${escapeXml(formatted)}</number>`)
+        }
+
+        xmlLines.push('      </telephony>')
+        xmlLines.push('      <services>')
+
+        for (const email of contact.emails) {
+            xmlLines.push(`        <email>${escapeXml(email)}</email>`)
+        }
+
+        xmlLines.push('      </services>')
+        xmlLines.push('    </contact>')
     }
-    if (normalized.some((item) => item === 'home')) {
-        return 'home'
-    }
-    if (normalized.some((item) => item === 'work')) {
-        return 'work'
-    }
-    return ''
+
+    xmlLines.push('  </phonebook>')
+    xmlLines.push('</phonebooks>')
+
+    return xmlLines.join('\n')
 }
 
 export function parseVcf(vcfText: string): VCardContact[] {
