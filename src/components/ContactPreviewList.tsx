@@ -45,7 +45,7 @@ export default function ContactPreviewList({ contacts }: ContactPreviewListProps
     }
 
     return (
-        <div className="space-y-4 h-64 overflow-y-auto p-1">
+        <div className="space-y-4 h-full min-h-0 overflow-y-auto p-1">
             {contacts.map((contact, index) => (
                 <ContactCard key={index} contact={contact} />
             ))}
