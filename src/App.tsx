@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import Header from './components/Header';
 import { fritzXmlToVcf, vcfToFritzXml } from './converters';
 
@@ -9,6 +9,8 @@ function App() {
   const [areaCode, setAreaCode] = useState('');
   const [countryCode, setCountryCode] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
+  const [isDragActive, setIsDragActive] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const handleConversion = () => {
     try {
@@ -30,15 +32,45 @@ function App() {
     }
   };
 
+  const loadFile = (file: File) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const content = e.target?.result as string;
+      setInputText(content);
+    };
+    reader.onerror = () => {
+      setErrorMessage('Fehler beim Lesen der Datei.');
+    };
+    reader.readAsText(file);
+  };
+
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const content = e.target?.result as string;
-        setInputText(content);
-      };
-      reader.readAsText(file);
+      loadFile(file);
+    }
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
+  const onDragOver = (event: React.DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    event.dataTransfer.dropEffect = 'copy';
+    setIsDragActive(true);
+  };
+
+  const onDragLeave = (event: React.DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    setIsDragActive(false);
+  };
+
+  const onDrop = (event: React.DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    setIsDragActive(false);
+    const file = event.dataTransfer.files?.[0];
+    if (file) {
+      loadFile(file);
     }
   };
 
@@ -98,19 +130,38 @@ function App() {
                     : 'Fügen Sie hier den Inhalt Ihrer vCard-Datei (.vcf) ein.'
                 }
               />
-              <div className="flex items-center">
-                <label htmlFor="file-upload" className="btn btn-primary cursor-pointer">
-                  Datei auswählen
-                </label>
+              <div
+                onDrop={onDrop}
+                onDragOver={onDragOver}
+                onDragEnter={onDragOver}
+                onDragLeave={onDragLeave}
+                onClick={() => fileInputRef.current?.click()}
+                className={`w-full p-6 rounded-lg transition-all duration-150 cursor-pointer select-none ${
+                  isDragActive
+                    ? 'border-4 border-dashed border-sky-400 bg-slate-800/70'
+                    : 'border-2 border-slate-700/80 bg-slate-900/60'
+                }`}
+              >
                 <input
-                  id="file-upload"
+                  ref={fileInputRef}
                   type="file"
+                  accept=".xml,.vcf,text/*"
                   onChange={handleFileUpload}
                   className="hidden"
                 />
-                <span className="ml-4 text-slate-300">
-                  {inputText ? 'Datei geladen' : 'Keine Datei ausgewählt'}
-                </span>
+                <div className="text-center text-slate-300">
+                  {inputText ? (
+                    <>
+                      <div className="font-medium text-slate-100">Datei geladen</div>
+                      <div className="text-sm mt-2 text-slate-400">Klicke hier oder ziehe eine neue Datei hinein, um sie zu ersetzen.</div>
+                    </>
+                  ) : (
+                    <>
+                      <div className="font-medium text-slate-100">Datei hierher ziehen oder klicken</div>
+                      <div className="text-sm mt-2 text-slate-400">Unterstützte Formate: .xml, .vcf oder Textdateien</div>
+                    </>
+                  )}
+                </div>
               </div>
             </div>
 
