@@ -1,10 +1,12 @@
 import { useRef, useState, type ChangeEvent, type DragEvent } from "react";
+import { useTranslation } from "react-i18next";
 
 type UploadBoxProps = {
     onFileLoaded: (content: string) => void;
 };
 
 export default function UploadBox({ onFileLoaded }: UploadBoxProps) {
+    const { t } = useTranslation();
     const fileInputRef = useRef<HTMLInputElement | null>(null);
     const [isDragActive, setIsDragActive] = useState(false);
     const [fileName, setFileName] = useState("");
@@ -19,7 +21,7 @@ export default function UploadBox({ onFileLoaded }: UploadBoxProps) {
             setErrorMessage("");
         };
         reader.onerror = () => {
-            setErrorMessage("Fehler beim Lesen der Datei.");
+            setErrorMessage(t("uploadBox.fileReadError"));
         };
         reader.readAsText(file);
     };
@@ -78,18 +80,20 @@ export default function UploadBox({ onFileLoaded }: UploadBoxProps) {
                 {errorMessage && <div className="text-sm mb-3 text-red-400">{errorMessage}</div>}
                 {fileName ? (
                     <>
-                        <div className="font-medium text-slate-100">Datei geladen: {fileName}</div>
+                        <div className="font-medium text-slate-100">
+                            {t('uploadBox.fileLoaded', { fileName })}
+                        </div>
                         <div className="text-sm mt-2 text-slate-400">
-                            Klicke hier oder ziehe eine neue Datei hinein, um sie zu ersetzen.
+                            {t('uploadBox.replaceFileHint')}
                         </div>
                     </>
                 ) : (
                     <>
                         <div className="font-medium text-slate-100">
-                            Datei hierher ziehen oder klicken
+                            {t('uploadBox.dragOrClick')}
                         </div>
                         <div className="text-sm mt-2 text-slate-400">
-                            Unterstützte Formate: .xml, .vcf oder Textdateien
+                            {t('uploadBox.supportedFormats')}
                         </div>
                     </>
                 )}

@@ -114,12 +114,12 @@ export function parseFritzXml(xmlString: string): FritzContact[] {
     const doc = parser.parseFromString(xmlString, 'application/xml')
     const parserError = doc.querySelector('parsererror')
     if (parserError) {
-        throw new Error('Ungültiges FritzBox XML.')
+        throw new Error('errors.invalidFritzXml')
     }
 
     const contacts = Array.from(doc.querySelectorAll('phonebook > contact'))
     if (contacts.length === 0) {
-        throw new Error('Keine Kontakte im FritzBox-Telefonbuch gefunden.')
+        throw new Error('errors.noContactsFound')
     }
 
     return contacts.map((contact) => {
@@ -269,7 +269,7 @@ export function vcfToFritzXml(
         .filter((c): c is VCardContact => !!c)
 
     if (contacts.length === 0) {
-        throw new Error('Keine gültigen vCard-Kontakte gefunden.')
+        throw new Error('errors.noValidVCardContacts')
     }
 
     const xmlLines: string[] = [

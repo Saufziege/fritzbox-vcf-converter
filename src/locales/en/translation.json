@@ -1,0 +1,48 @@
+{
+  "app": {
+    "unknownError": "An unknown error occurred."
+  },
+  "header": {
+    "title": "vcf ⇄ FritzBox XML Converter",
+    "description": "Convert your contacts quickly and easily between vCard (.vcf) and FritzBox phonebook XML (.xml)."
+  },
+  "navigation": {
+    "fritzToVcf": "FritzBox → vCard",
+    "vcfToFritz": "vCard → FritzBox"
+  },
+  "uploadBox": {
+    "fileReadError": "Error reading the file.",
+    "fileLoaded": "File loaded: {{fileName}}",
+    "replaceFileHint": "Click here or drag a new file to replace it.",
+    "dragOrClick": "Drag a file here or click",
+    "supportedFormats": "Supported formats: .xml, .vcf or text files"
+  },
+  "fileInput": {
+    "title": "Input",
+    "placeholderFritz": "Paste the contents of your FritzBox XML file here.",
+    "placeholderVCard": "Paste the contents of your vCard file (.vcf) here.",
+    "convertButton": "Convert"
+  },
+  "fileOutput": {
+    "title": "Output",
+    "placeholderResult": "The conversion result will appear here.",
+    "downloadButton": "Download"
+  },
+  "options": {
+    "title": "Options for vCard → FritzBox",
+    "countryPlaceholder": "Country code (e.g. 49)",
+    "areaPlaceholder": "Area code (e.g. 30)",
+    "hint": "When entering a country or area code, numbers in the vCards that do not already have a country or area code will be prefixed."
+  },
+  "errors": {
+    "label": "Error:",
+    "invalidFritzXml": "Invalid FritzBox XML.",
+    "noContactsFound": "No contacts were found in the FritzBox phonebook.",
+    "noValidVCardContacts": "No valid vCard contacts were found.",
+    "unknown": "An unknown error occurred."
+  },
+  "languageSwitcher": {
+    "de": "DE",
+    "en": "EN"
+  }
+}

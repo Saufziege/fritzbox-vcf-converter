@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import Header from "./components/Header";
 import ConvertDirection from "./components/ConvertDirection";
 import UploadBox from "./components/UploadBox";
@@ -7,6 +8,7 @@ import ErrorMessage from "./components/ErrorMessage";
 import { fritzXmlToVcf, vcfToFritzXml } from "./utils/converters";
 
 function App() {
+    const { t } = useTranslation();
     const [direction, setDirection] = useState<"fritz-to-vcf" | "vcf-to-fritz">("fritz-to-vcf");
     const [inputText, setInputText] = useState("");
     const [outputText, setOutputText] = useState("");
@@ -32,9 +34,10 @@ function App() {
             }
         } catch (error) {
             if (error instanceof Error) {
-                setErrorMessage(error.message);
+                const translated = t(error.message);
+                setErrorMessage(translated !== error.message ? translated : error.message);
             } else {
-                setErrorMessage("Ein unbekannter Fehler ist aufgetreten.");
+                setErrorMessage(t("errors.unknown"));
             }
             setOutputText("");
         }

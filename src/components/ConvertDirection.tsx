@@ -1,9 +1,13 @@
+import { useTranslation } from 'react-i18next';
+
 type ConvertDirectionProps = {
     direction: "fritz-to-vcf" | "vcf-to-fritz";
     onDirectionChange: (direction: "fritz-to-vcf" | "vcf-to-fritz") => void;
 };
 
 export default function ConvertDirection({ direction, onDirectionChange }: ConvertDirectionProps) {
+    const { t } = useTranslation();
+
     return (
         <div className="flex justify-center mb-8">
             <div className="flex rounded-lg bg-slate-900/80 p-1 border border-slate-700/80">
@@ -13,7 +17,7 @@ export default function ConvertDirection({ direction, onDirectionChange }: Conve
                         direction === "fritz-to-vcf" ? "btn-active" : "btn-secondary"
                     }`}
                 >
-                    FritzBox → vCard
+                    {t('navigation.fritzToVcf')}
                 </button>
                 <button
                     onClick={() => onDirectionChange("vcf-to-fritz")}
@@ -21,7 +25,7 @@ export default function ConvertDirection({ direction, onDirectionChange }: Conve
                         direction === "vcf-to-fritz" ? "btn-active" : "btn-secondary"
                     }`}
                 >
-                    vCard → FritzBox
+                    {t('navigation.vcfToFritz')}
                 </button>
             </div>
         </div>
