@@ -2,6 +2,10 @@
 
 A lightweight React + TypeScript + Vite app for converting contacts between vCard (`.vcf`) and FritzBox phonebook XML (`.xml`).
 
+## Live Demo
+
+Visit the deployed app at: https://fritzbox-vcf-converter.vercel.app/
+
 ## Features
 
 - Convert FritzBox XML -> vCard
