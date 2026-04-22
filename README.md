@@ -1,73 +1,75 @@
-# React + TypeScript + Vite
+# vcf2Fritz
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A lightweight React + TypeScript + Vite app for converting contacts between vCard (`.vcf`) and FritzBox phonebook XML (`.xml`).
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- Convert FritzBox XML -> vCard
+- Convert vCard -> FritzBox XML
+- Upload and preview `.xml` / `.vcf` files
+- Optional country and area code normalization for vCard -> FritzBox conversion
+- Automatic conversion direction selection when a file is uploaded
+- Multilingual UI support with English and German translations
+- Built with React, TypeScript, Vite and `react-i18next`
 
-## React Compiler
+## Supported Formats
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- Input: FritzBox phonebook XML (`.xml`)
+- Output: vCard (`.vcf`)
+- Input: vCard (`.vcf`)
+- Output: FritzBox phonebook XML (`.xml`)
 
-## Expanding the ESLint configuration
+## Installation
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-    globalIgnores(["dist"]),
-    {
-        files: ["**/*.{ts,tsx}"],
-        extends: [
-            // Other configs...
-
-            // Remove tseslint.configs.recommended and replace with this
-            tseslint.configs.recommendedTypeChecked,
-            // Alternatively, use this for stricter rules
-            tseslint.configs.strictTypeChecked,
-            // Optionally, add this for stylistic rules
-            tseslint.configs.stylisticTypeChecked,
-
-            // Other configs...
-        ],
-        languageOptions: {
-            parserOptions: {
-                project: ["./tsconfig.node.json", "./tsconfig.app.json"],
-                tsconfigRootDir: import.meta.dirname,
-            },
-            // other options...
-        },
-    },
-]);
+```bash
+npm install
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Development
 
-```js
-// eslint.config.js
-import reactX from "eslint-plugin-react-x";
-import reactDom from "eslint-plugin-react-dom";
-
-export default defineConfig([
-    globalIgnores(["dist"]),
-    {
-        files: ["**/*.{ts,tsx}"],
-        extends: [
-            // Other configs...
-            // Enable lint rules for React
-            reactX.configs["recommended-typescript"],
-            // Enable lint rules for React DOM
-            reactDom.configs.recommended,
-        ],
-        languageOptions: {
-            parserOptions: {
-                project: ["./tsconfig.node.json", "./tsconfig.app.json"],
-                tsconfigRootDir: import.meta.dirname,
-            },
-            // other options...
-        },
-    },
-]);
+```bash
+npm run dev
 ```
+
+Open the app in your browser at `http://localhost:5173`.
+
+## Build
+
+```bash
+npm run build
+```
+
+Preview the production build:
+
+```bash
+npm run preview
+```
+
+## Usage
+
+1. Upload a `.xml` or `.vcf` file, or paste the content into the input area.
+2. The conversion direction is automatically selected when a valid file type is detected.
+3. Click `Convert`.
+4. Download the result as `phonebook.vcf` or `phonebook.xml`.
+
+### vCard -> FritzBox Options
+
+- `Country Code`: used to format phone numbers that are missing a country prefix.
+- `Area Code`: used for local phone numbers that need an area code.
+
+## Project Structure
+
+- `src/App.tsx` - main application logic
+- `src/components` - UI components, preview and file handling
+- `src/utils/converters.ts` - conversion functions for vCard and FritzBox XML
+- `src/locales` - translation files for German and English
+
+## Notes
+
+- The preview shows parsed contact data before conversion.
+- When a phone type cannot be determined, a default phone label is used.
+- The app handles both vCard 2.1 and vCard 3.0 input formats.
+
+## License
+
+This project is available under the MIT License.
