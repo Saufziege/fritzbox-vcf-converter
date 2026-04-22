@@ -33,6 +33,10 @@ npm run dev
 
 Open the app in your browser at `http://localhost:5173`.
 
+## Live Demo
+
+Visit the deployed app at: https://fritzbox-vcf-converter.vercel.app/
+
 ## Build
 
 ```bash
