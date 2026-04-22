@@ -20,10 +20,24 @@ function App() {
         document.title = t("header.title");
     }, [t]);
 
-    const handleFileLoaded = (content: string) => {
+    const handleDirectionChange = (newDirection: "fritz-to-vcf" | "vcf-to-fritz") => {
+        if (newDirection !== direction && inputText) {
+            setInputText("");
+            setOutputText("");
+        }
+        setDirection(newDirection);
+    };
+
+    const handleFileLoaded = (content: string, file: File) => {
         setInputText(content);
         setErrorMessage("");
         setOutputText("");
+
+        if (file.name.toLowerCase().endsWith(".xml")) {
+            setDirection("fritz-to-vcf");
+        } else if (file.name.toLowerCase().endsWith(".vcf")) {
+            setDirection("vcf-to-fritz");
+        }
     };
 
     const handleConversion = () => {
@@ -65,7 +79,7 @@ function App() {
                 <Header />
 
                 <main className="p-6 md:p-8">
-                    <ConvertDirection direction={direction} onDirectionChange={setDirection} />
+                    <ConvertDirection direction={direction} onDirectionChange={handleDirectionChange} />
 
                     <UploadBox onFileLoaded={handleFileLoaded} />
 

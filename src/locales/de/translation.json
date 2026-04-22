@@ -1,62 +1,62 @@
 {
-  "app": {
-    "unknownError": "Ein unbekannter Fehler ist aufgetreten."
-  },
-  "header": {
-    "title": "vcf ⇄ FritzBox XML Konverter",
-    "description": "Konvertieren Sie Ihre Kontakte schnell und einfach zwischen dem vCard-Format (.vcf) und dem FritzBox-Telefonbuchformat (.xml)."
-  },
-  "navigation": {
-    "fritzToVcf": "FritzBox → vCard",
-    "vcfToFritz": "vCard → FritzBox"
-  },
-  "uploadBox": {
-    "fileReadError": "Fehler beim Lesen der Datei.",
-    "fileLoaded": "Datei geladen: {{fileName}}",
-    "replaceFileHint": "Klicke hier oder ziehe eine neue Datei hinein, um sie zu ersetzen.",
-    "dragOrClick": "Datei hierher ziehen oder klicken",
-    "supportedFormats": "Unterstützte Formate: .xml, .vcf oder Textdateien"
-  },
-  "fileInput": {
-    "title": "Eingabe",
-    "placeholderFritz": "Fügen Sie hier den Inhalt Ihrer FritzBox XML-Datei ein.",
-    "placeholderVCard": "Fügen Sie hier den Inhalt Ihrer vCard-Datei (.vcf) ein.",
-    "convertButton": "Konvertieren"
-  },
-  "fileOutput": {
-    "title": "Ausgabe",
-    "placeholderResult": "Das Ergebnis der Konvertierung wird hier angezeigt.",
-    "downloadButton": "Herunterladen"
-  },
-  "options": {
-    "title": "Optionen für vCard → FritzBox",
-    "countryPlaceholder": "Landesvorwahl (z.B. 49)",
-    "areaPlaceholder": "Ortsvorwahl (z.B. 30)",
-    "hint": "Beim Eingeben einer Landes- oder Ortsvorwahl werden Zahlen in den vCards, die noch keine Vorwahl haben, damit ergänzt."
-  },
-  "errors": {
-    "label": "Fehler:",
-    "invalidFritzXml": "Ungültiges FritzBox XML.",
-    "noContactsFound": "Keine Kontakte im FritzBox-Telefonbuch gefunden.",
-    "noValidVCardContacts": "Keine gültigen vCard-Kontakte gefunden.",
-    "unknown": "Ein unbekannter Fehler ist aufgetreten."
-  },
-  "preview": {
-    "noContacts": "Keine Kontakte zur Vorschau.",
-    "raw": "Roh",
-    "preview": "Vorschau",
-    "parsingError": "Fehler beim Analysieren der Eingabe."
-  },
-  "phoneTypes": {
-    "home": "Privat",
-    "work": "Arbeit",
-    "mobile": "Mobil",
-    "fax_work": "Fax",
-    "default": "Telefon"
-  },
-  "email": "E-Mail",
-  "languageSwitcher": {
-    "de": "DE",
-    "en": "EN"
-  }
+    "app": {
+        "unknownError": "Ein unbekannter Fehler ist aufgetreten."
+    },
+    "header": {
+        "title": "vcf ⇄ FritzBox XML Konverter",
+        "description": "Konvertieren Sie Ihre Kontakte schnell und einfach zwischen dem vCard-Format (.vcf) und dem FritzBox-Telefonbuchformat (.xml)."
+    },
+    "navigation": {
+        "fritzToVcf": "FritzBox → vCard",
+        "vcfToFritz": "vCard → FritzBox"
+    },
+    "uploadBox": {
+        "fileReadError": "Fehler beim Lesen der Datei.",
+        "fileLoaded": "Datei geladen: {{fileName}}",
+        "replaceFileHint": "Klicke hier oder ziehe eine neue Datei hinein, um sie zu ersetzen.",
+        "dragOrClick": "Datei hierher ziehen oder klicken",
+        "supportedFormats": "Unterstützte Formate: .xml, .vcf oder Textdateien"
+    },
+    "fileInput": {
+        "title": "Eingabe",
+        "placeholderFritz": "Fügen Sie hier den Inhalt Ihrer FritzBox XML-Datei ein.",
+        "placeholderVCard": "Fügen Sie hier den Inhalt Ihrer vCard-Datei (.vcf) ein.",
+        "convertButton": "Konvertieren"
+    },
+    "fileOutput": {
+        "title": "Ausgabe",
+        "placeholderResult": "Das Ergebnis der Konvertierung wird hier angezeigt.",
+        "downloadButton": "Herunterladen"
+    },
+    "options": {
+        "title": "Optionen für vCard → FritzBox",
+        "countryPlaceholder": "Landesvorwahl (z.B. 49)",
+        "areaPlaceholder": "Ortsvorwahl (z.B. 30)",
+        "hint": "Beim Eingeben einer Landes- oder Ortsvorwahl werden Zahlen in den vCards, die noch keine Vorwahl haben, damit ergänzt."
+    },
+    "errors": {
+        "label": "Fehler:",
+        "invalidFritzXml": "Ungültiges FritzBox XML.",
+        "noContactsFound": "Keine Kontakte im FritzBox-Telefonbuch gefunden.",
+        "noValidVCardContacts": "Keine gültigen vCard-Kontakte gefunden.",
+        "unknown": "Ein unbekannter Fehler ist aufgetreten."
+    },
+    "preview": {
+        "noContacts": "Keine Kontakte zur Vorschau.",
+        "raw": "Roh",
+        "preview": "Vorschau",
+        "parsingError": "Fehler beim Analysieren der Eingabe."
+    },
+    "phoneTypes": {
+        "home": "Privat",
+        "work": "Arbeit",
+        "mobile": "Mobil",
+        "fax_work": "Fax",
+        "default": "Telefon"
+    },
+    "email": "E-Mail",
+    "languageSwitcher": {
+        "de": "DE",
+        "en": "EN"
+    }
 }

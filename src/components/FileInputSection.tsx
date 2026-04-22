@@ -61,7 +61,7 @@ export default function FileInputSection({
             </div>
             {viewMode === 'raw' ? (
                 <textarea
-                    className="w-full flex-1 min-h-[16rem] max-h-96 p-4 bg-slate-900/80 border-2 border-slate-700/80 rounded-lg text-slate-100 focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition-all duration-300"
+                    className="w-full flex-1 min-h-16rem max-h-96 p-4 bg-slate-900/80 border-2 border-slate-700/80 rounded-lg text-slate-100 focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition-all duration-300"
                     value={inputText}
                     onChange={(e) => onInputChange(e.target.value)}
                     placeholder={
@@ -71,7 +71,7 @@ export default function FileInputSection({
                     }
                 />
             ) : (
-                <div className="w-full flex-1 min-h-[16rem] max-h-96 p-4 bg-slate-900/80 border-2 border-slate-700/80 rounded-lg text-slate-100 min-h-0">
+                <div className="w-full flex-1 min-h-16rem max-h-96 p-4 bg-slate-900/80 border-2 border-slate-700/80 rounded-lg text-slate-100 min-h-0">
                     {renderPreview()}
                 </div>
             )}

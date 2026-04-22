@@ -2,7 +2,7 @@ import { useRef, useState, type ChangeEvent, type DragEvent } from "react";
 import { useTranslation } from "react-i18next";
 
 type UploadBoxProps = {
-    onFileLoaded: (content: string) => void;
+    onFileLoaded: (content: string, file: File) => void;
 };
 
 export default function UploadBox({ onFileLoaded }: UploadBoxProps) {
@@ -16,7 +16,7 @@ export default function UploadBox({ onFileLoaded }: UploadBoxProps) {
         const reader = new FileReader();
         reader.onload = (e) => {
             const content = e.target?.result as string;
-            onFileLoaded(content);
+            onFileLoaded(content, file);
             setFileName(file.name);
             setErrorMessage("");
         };
