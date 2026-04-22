@@ -69,29 +69,11 @@ function App() {
                         onConvert={handleConversion}
                         outputText={outputText}
                         onDownload={handleDownload}
+                        areaCode={areaCode}
+                        countryCode={countryCode}
+                        onAreaCodeChange={setAreaCode}
+                        onCountryCodeChange={setCountryCode}
                     />
-
-                    {direction === "vcf-to-fritz" && (
-                        <div className="mt-8 p-6 bg-slate-900/80 border-2 border-slate-700/80 rounded-lg">
-                            <h3 className="text-xl font-semibold mb-4 text-slate-100">Optionen für vCard → FritzBox</h3>
-                            <div className="flex flex-col sm:flex-row gap-4">
-                                <input
-                                    type="text"
-                                    placeholder="Landesvorwahl (z.B. 49)"
-                                    value={countryCode}
-                                    onChange={(e) => setCountryCode(e.target.value)}
-                                    className="flex-1 p-3 bg-slate-900/80 border-2 border-slate-700/80 rounded-lg text-slate-100 focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition-all duration-300"
-                                />
-                                <input
-                                    type="text"
-                                    placeholder="Ortsvorwahl (z.B. 30)"
-                                    value={areaCode}
-                                    onChange={(e) => setAreaCode(e.target.value)}
-                                    className="flex-1 p-3 bg-slate-900/80 border-2 border-slate-700/80 rounded-lg text-slate-100 focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition-all duration-300"
-                                />
-                            </div>
-                        </div>
-                    )}
 
                     {errorMessage && <ErrorMessage errorMessage={errorMessage} />}
                 </main>

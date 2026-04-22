@@ -5,7 +5,12 @@ type FileInputSectionProps = {
     onConvert: () => void;
 };
 
-export default function FileInputSection({ direction, inputText, onInputChange, onConvert }: FileInputSectionProps) {
+export default function FileInputSection({
+    direction,
+    inputText,
+    onInputChange,
+    onConvert,
+}: FileInputSectionProps) {
     return (
         <div className="space-y-4">
             <h2 className="text-2xl font-semibold text-slate-100">Eingabe</h2>

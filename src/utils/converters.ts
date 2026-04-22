@@ -32,6 +32,23 @@ const fritzToVCardTypeMap: Record<FritzTelephonyType, string> = {
     '': 'VOICE',
 }
 
+function mapVCardTypesToFritzType(types: string[]): FritzTelephonyType {
+    const normalized = types.map((type) => type.toLowerCase())
+    if (normalized.includes('fax') || normalized.includes('fax_work')) {
+        return 'fax_work'
+    }
+    if (normalized.includes('cell') || normalized.includes('mobile')) {
+        return 'mobile'
+    }
+    if (normalized.includes('home')) {
+        return 'home'
+    }
+    if (normalized.includes('work')) {
+        return 'work'
+    }
+    return ''
+}
+
 function normalizeText(input: string): string {
     return input.trim()
 }
@@ -299,59 +316,3 @@ export function vcfToFritzXml(
     return xmlLines.join('\n')
 }
 
-export function parseVcf(vcfText: string): VCardContact[] {
-    const blocks = vcfText
-        .replace(/\r\n/g, '\n')
-        .split(/(?=BEGIN:VCARD)/i)
-        .map((block) => block.trim())
-        .filter((block) => block.toUpperCase().startsWith('BEGIN:VCARD'))
-
-    if (blocks.length === 0) {
-        throw new Error('Keine vCard-Kontakte gefunden.')
-    }
-
-    return blocks
-        .map(parseVCardBlock)
-        .filter((contact): contact is VCardContact => contact !== null)
-}
-
-export function vcfToFritzXml(vcfText: string): string {
-    const contacts = parseVcf(vcfText)
-    const xmlLines: string[] = []
-
-    xmlLines.push('<?xml version="1.0" encoding="UTF-8"?>')
-    xmlLines.push('<phonebook>')
-
-    for (const contact of contacts) {
-        xmlLines.push('  <contact>')
-        xmlLines.push('    <person>')
-        xmlLines.push(`      <realName>${escapeXml(contact.fullName)}</realName>`)
-        xmlLines.push('    </person>')
-
-        if (contact.phones.length > 0) {
-            xmlLines.push('    <telephony>')
-            for (const phone of contact.phones) {
-                const type = mapVCardTypesToFritzType(phone.types)
-                xmlLines.push(
-                    `      <number type="${type}">${escapeXml(phone.value)}</number>`,
-                )
-            }
-            xmlLines.push('    </telephony>')
-        }
-
-        if (contact.emails.length > 0) {
-            xmlLines.push('    <services>')
-            for (const email of contact.emails) {
-                xmlLines.push('      <email>')
-                xmlLines.push(`        <_Data>${escapeXml(email)}</_Data>`)
-                xmlLines.push('      </email>')
-            }
-            xmlLines.push('    </services>')
-        }
-
-        xmlLines.push('  </contact>')
-    }
-
-    xmlLines.push('</phonebook>')
-    return xmlLines.join('\n')
-}
