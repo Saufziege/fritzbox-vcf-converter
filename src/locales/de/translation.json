@@ -41,6 +41,20 @@
     "noValidVCardContacts": "Keine gültigen vCard-Kontakte gefunden.",
     "unknown": "Ein unbekannter Fehler ist aufgetreten."
   },
+  "preview": {
+    "noContacts": "Keine Kontakte zur Vorschau.",
+    "raw": "Roh",
+    "preview": "Vorschau",
+    "parsingError": "Fehler beim Analysieren der Eingabe."
+  },
+  "phoneTypes": {
+    "home": "Privat",
+    "work": "Arbeit",
+    "mobile": "Mobil",
+    "fax_work": "Fax",
+    "default": "Telefon"
+  },
+  "email": "E-Mail",
   "languageSwitcher": {
     "de": "DE",
     "en": "EN"

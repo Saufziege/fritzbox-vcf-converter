@@ -41,6 +41,20 @@
     "noValidVCardContacts": "No valid vCard contacts were found.",
     "unknown": "An unknown error occurred."
   },
+  "preview": {
+    "noContacts": "No contacts to preview.",
+    "raw": "Raw",
+    "preview": "Preview",
+    "parsingError": "Error parsing input."
+  },
+  "phoneTypes": {
+    "home": "Home",
+    "work": "Work",
+    "mobile": "Mobile",
+    "fax_work": "Fax",
+    "default": "Phone"
+  },
+  "email": "Email",
   "languageSwitcher": {
     "de": "DE",
     "en": "EN"

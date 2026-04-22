@@ -259,10 +259,7 @@ function parseVCardBlock(block: string): VCardContact | null {
     return contact
 }
 
-export function vcfToFritzXml(
-    vcfText: string,
-    options?: { areaCode?: string; countryCode?: string },
-): string {
+export function parseVCardContacts(vcfText: string): VCardContact[] {
     const contacts = vcfText
         .split('BEGIN:VCARD')
         .map((block) => (block.trim() ? parseVCardBlock(`BEGIN:VCARD\n${block}`) : null))
@@ -271,6 +268,15 @@ export function vcfToFritzXml(
     if (contacts.length === 0) {
         throw new Error('errors.noValidVCardContacts')
     }
+
+    return contacts
+}
+
+export function vcfToFritzXml(
+    vcfText: string,
+    options?: { areaCode?: string; countryCode?: string },
+): string {
+    const contacts = parseVCardContacts(vcfText)
 
     const xmlLines: string[] = [
         '<?xml version="1.0" encoding="UTF-8"?>',
