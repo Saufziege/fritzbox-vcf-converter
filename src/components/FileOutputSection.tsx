@@ -49,20 +49,20 @@ export default function FileOutputSection({ outputText, onDownload }: FileOutput
     };
 
     return (
-        <div className="space-y-4">
+        <div className="space-y-4 flex flex-col h-full min-h-0">
             <div className="flex justify-between items-center">
                 <h2 className="text-2xl font-semibold text-slate-100">{t("fileOutput.title")}</h2>
                 <ViewToggle viewMode={viewMode} setViewMode={setViewMode} />
             </div>
             {viewMode === 'raw' ? (
                 <textarea
-                    className="w-full h-64 p-4 bg-slate-900/80 border-2 border-slate-700/80 rounded-lg text-slate-100 focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition-all duration-300"
+                    className="w-full flex-1 min-h-[16rem] max-h-96 p-4 bg-slate-900/80 border-2 border-slate-700/80 rounded-lg text-slate-100 focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition-all duration-300"
                     value={outputText}
                     readOnly
                     placeholder={t("fileOutput.placeholderResult")}
                 />
             ) : (
-                <div className="w-full h-64 p-4 bg-slate-900/80 border-2 border-slate-700/80 rounded-lg text-slate-100">
+                <div className="w-full flex-1 min-h-[16rem] max-h-96 p-4 bg-slate-900/80 border-2 border-slate-700/80 rounded-lg text-slate-100 min-h-0">
                     {renderPreview()}
                 </div>
             )}
