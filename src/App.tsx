@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import Header from "./components/Header";
 import ConvertDirection from "./components/ConvertDirection";
@@ -15,6 +15,10 @@ function App() {
     const [errorMessage, setErrorMessage] = useState("");
     const [areaCode, setAreaCode] = useState("");
     const [countryCode, setCountryCode] = useState("");
+
+    useEffect(() => {
+        document.title = t("header.title");
+    }, [t]);
 
     const handleFileLoaded = (content: string) => {
         setInputText(content);
