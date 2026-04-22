@@ -1,0 +1,317 @@
+export type FritzTelephonyType = 'home' | 'work' | 'fax_work' | 'mobile' | ''
+
+export interface FritzTelephonyNumber {
+    type: FritzTelephonyType
+    value: string
+}
+
+export interface FritzContact {
+    realName: string
+    numbers: FritzTelephonyNumber[]
+    emails: string[]
+}
+
+export interface VCardPhone {
+    types: string[]
+    value: string
+}
+
+export interface VCardContact {
+    fullName: string
+    firstName: string
+    lastName: string
+    emails: string[]
+    phones: VCardPhone[]
+}
+
+const fritzToVCardTypeMap: Record<FritzTelephonyType, string> = {
+    home: 'HOME',
+    work: 'WORK',
+    fax_work: 'WORK,FAX',
+    mobile: 'CELL',
+    '': 'VOICE',
+}
+
+function normalizeText(input: string): string {
+    return input.trim()
+}
+
+function escapeXml(value: string): string {
+    return value
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&apos;')
+}
+
+function normalizePhone(value: string): string {
+    return value.replace(/[()\s-]/g, '').trim()
+}
+
+function needsAreaCode(number: string): boolean {
+    return /^[1-9]\d+$/.test(number)
+}
+
+function needsCountryCode(number: string): boolean {
+    return /^[0-9][1-9]\d+$/.test(number)
+}
+
+function formatPhoneNumber(
+    rawNumber: string,
+    areaCode?: string,
+    countryCode?: string,
+): string {
+    const cleaned = normalizePhone(rawNumber)
+    if (!cleaned) {
+        return rawNumber.trim()
+    }
+
+    let number = cleaned
+    const hasPlus = /^\+/.test(number)
+    if (hasPlus) {
+        return number
+    }
+
+    const normalizedArea = normalizeText(areaCode || '')
+    const normalizedCountry = normalizeText(countryCode || '')
+
+    if (
+        normalizedCountry &&
+        needsCountryCode(number) &&
+        (normalizedArea || !needsAreaCode(number))
+    ) {
+        number = number.replace(/^0+/, '')
+        return `+${normalizedCountry} ${normalizedArea ? `${normalizedArea} ` : ''}${number}`.trim()
+    }
+
+    if (normalizedArea && needsAreaCode(number)) {
+        return `${normalizedArea} ${number}`.trim()
+    }
+
+    return number
+}
+
+export function parseFritzXml(xmlString: string): FritzContact[] {
+    const parser = new DOMParser()
+    const doc = parser.parseFromString(xmlString, 'application/xml')
+    const parserError = doc.querySelector('parsererror')
+    if (parserError) {
+        throw new Error('Ungültiges FritzBox XML.')
+    }
+
+    const contacts = Array.from(doc.querySelectorAll('phonebook > contact'))
+    if (contacts.length === 0) {
+        throw new Error('Keine Kontakte im FritzBox-Telefonbuch gefunden.')
+    }
+
+    return contacts.map((contact) => {
+        const realNameNode = contact.querySelector('person > realName')
+        const realName = realNameNode?.textContent?.trim() || ''
+
+        const numbers = Array.from(contact.querySelectorAll('telephony > number')).map((numberNode) => ({
+            type: (numberNode.getAttribute('type') || '') as FritzTelephonyType,
+            value: numberNode.textContent?.trim() || '',
+        }))
+
+        const emailNodes = Array.from(contact.querySelectorAll('services > email'))
+        const emails = emailNodes
+            .map((emailNode) => {
+                const dataNode = emailNode.querySelector('_Data')
+                return dataNode?.textContent?.trim() || emailNode.textContent?.trim() || ''
+            })
+            .filter(Boolean)
+
+        return { realName, numbers, emails }
+    })
+}
+
+export function fritzXmlToVcf(
+    xmlString: string,
+    areaCode?: string,
+    countryCode?: string,
+): string {
+    const contacts = parseFritzXml(xmlString)
+    const lines: string[] = []
+
+    for (const contact of contacts) {
+        const [lastName, ...firstParts] = contact.realName.split(',')
+        const firstName = firstParts.join(',').trim()
+        const displayName = contact.realName.trim()
+
+        lines.push('BEGIN:VCARD')
+        lines.push('VERSION:3.0')
+        lines.push(`N:${escapeXml(lastName.trim())};${escapeXml(firstName)};;;`)
+        lines.push(`FN:${escapeXml(displayName)}`)
+
+        for (const number of contact.numbers) {
+            const type = fritzToVCardTypeMap[number.type]
+            const formatted = formatPhoneNumber(number.value, areaCode, countryCode)
+            lines.push(`TEL;TYPE=${type}:${escapeXml(formatted)}`)
+        }
+
+        for (const email of contact.emails) {
+            lines.push(`EMAIL;TYPE=INTERNET:${escapeXml(email)}`)
+        }
+
+        lines.push('END:VCARD')
+    }
+
+    return lines.join('\r\n')
+}
+
+function parseVCardLines(vcfText: string): string[] {
+    const rawLines = vcfText.replace(/\r\n/g, '\n').split('\n')
+    const unfolded: string[] = []
+
+    for (const rawLine of rawLines) {
+        if (/^[ \t]/.test(rawLine) && unfolded.length > 0) {
+            unfolded[unfolded.length - 1] += rawLine.trim()
+        } else {
+            unfolded.push(rawLine)
+        }
+    }
+
+    return unfolded.filter((line) => line.length > 0)
+}
+
+function parseVCardBlock(block: string): VCardContact | null {
+    const lines = parseVCardLines(block)
+    const contact: VCardContact = {
+        fullName: '',
+        firstName: '',
+        lastName: '',
+        emails: [],
+        phones: [],
+    }
+
+    for (const line of lines) {
+        const [keyPart, ...valueParts] = line.split(':')
+        if (!valueParts.length) {
+            continue
+        }
+
+        const value = valueParts.join(':').trim()
+        const [property, ...parameterParts] = keyPart.split(';')
+        const propName = property.toUpperCase().trim()
+        const rawParams = parameterParts.join(';')
+
+        if (propName === 'FN') {
+            contact.fullName = value
+        }
+
+        if (propName === 'N') {
+            const [last, first] = value.split(';')
+            contact.lastName = (last || '').trim()
+            contact.firstName = (first || '').trim()
+            if (!contact.fullName) {
+                contact.fullName = `${contact.firstName} ${contact.lastName}`.trim()
+            }
+        }
+
+        if (propName === 'EMAIL') {
+            if (value) {
+                contact.emails.push(value)
+            }
+        }
+
+        if (propName === 'TEL') {
+            const types: string[] = []
+            const paramParts = rawParams.split(';')
+            for (const param of paramParts) {
+                const [paramName, paramValue] = param.split('=')
+                if (!paramValue) {
+                    continue
+                }
+                if (paramName.toLowerCase() === 'type') {
+                    types.push(...paramValue.split(',').map((token) => token.trim().toLowerCase()))
+                }
+            }
+
+            contact.phones.push({
+                types,
+                value,
+            })
+        }
+    }
+
+    if (!contact.fullName) {
+        contact.fullName = 'Unnamed'
+    }
+
+    return contact
+}
+
+function mapVCardTypesToFritzType(types: string[]): FritzTelephonyType {
+    const normalized = types.map((t) => t.toLowerCase())
+    if (normalized.some((item) => item.includes('fax'))) {
+        return 'fax_work'
+    }
+    if (normalized.some((item) => item === 'cell' || item === 'mobile')) {
+        return 'mobile'
+    }
+    if (normalized.some((item) => item === 'home')) {
+        return 'home'
+    }
+    if (normalized.some((item) => item === 'work')) {
+        return 'work'
+    }
+    return ''
+}
+
+export function parseVcf(vcfText: string): VCardContact[] {
+    const blocks = vcfText
+        .replace(/\r\n/g, '\n')
+        .split(/(?=BEGIN:VCARD)/i)
+        .map((block) => block.trim())
+        .filter((block) => block.toUpperCase().startsWith('BEGIN:VCARD'))
+
+    if (blocks.length === 0) {
+        throw new Error('Keine vCard-Kontakte gefunden.')
+    }
+
+    return blocks
+        .map(parseVCardBlock)
+        .filter((contact): contact is VCardContact => contact !== null)
+}
+
+export function vcfToFritzXml(vcfText: string): string {
+    const contacts = parseVcf(vcfText)
+    const xmlLines: string[] = []
+
+    xmlLines.push('<?xml version="1.0" encoding="UTF-8"?>')
+    xmlLines.push('<phonebook>')
+
+    for (const contact of contacts) {
+        xmlLines.push('  <contact>')
+        xmlLines.push('    <person>')
+        xmlLines.push(`      <realName>${escapeXml(contact.fullName)}</realName>`)
+        xmlLines.push('    </person>')
+
+        if (contact.phones.length > 0) {
+            xmlLines.push('    <telephony>')
+            for (const phone of contact.phones) {
+                const type = mapVCardTypesToFritzType(phone.types)
+                xmlLines.push(
+                    `      <number type="${type}">${escapeXml(phone.value)}</number>`,
+                )
+            }
+            xmlLines.push('    </telephony>')
+        }
+
+        if (contact.emails.length > 0) {
+            xmlLines.push('    <services>')
+            for (const email of contact.emails) {
+                xmlLines.push('      <email>')
+                xmlLines.push(`        <_Data>${escapeXml(email)}</_Data>`)
+                xmlLines.push('      </email>')
+            }
+            xmlLines.push('    </services>')
+        }
+
+        xmlLines.push('  </contact>')
+    }
+
+    xmlLines.push('</phonebook>')
+    return xmlLines.join('\n')
+}
