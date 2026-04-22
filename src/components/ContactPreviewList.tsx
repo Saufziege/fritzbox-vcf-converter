@@ -6,6 +6,30 @@ type ContactPreviewListProps = {
     direction: "fritz-to-vcf" | "vcf-to-fritz";
 };
 
+type PreviewPhone = VCardContact["phones"][number] | FritzContact["numbers"][number];
+
+const getPhoneTypeKey = (phone: PreviewPhone) => {
+    if ('type' in phone) {
+        return phone.type || 'default';
+    }
+
+    const normalizedTypes = phone.types.map((type) => type.toLowerCase());
+    if (normalizedTypes.includes('fax') || normalizedTypes.includes('fax_work')) {
+        return 'fax_work';
+    }
+    if (normalizedTypes.includes('cell') || normalizedTypes.includes('mobile')) {
+        return 'mobile';
+    }
+    if (normalizedTypes.includes('home')) {
+        return 'home';
+    }
+    if (normalizedTypes.includes('work')) {
+        return 'work';
+    }
+
+    return 'default';
+};
+
 const ContactCard = ({ contact }: { contact: VCardContact | FritzContact }) => {
     const { t } = useTranslation();
 
@@ -20,7 +44,7 @@ const ContactCard = ({ contact }: { contact: VCardContact | FritzContact }) => {
             <div className="space-y-1">
                 {phones.map((phone, index) => (
                     <p key={index} className="text-sm text-slate-300">
-                        <span className="font-semibold text-slate-400">{t(`phoneTypes.${'type' in phone ? phone.type : 'default'}`)}:</span> {phone.value}
+                        <span className="font-semibold text-slate-400">{t(`phoneTypes.${getPhoneTypeKey(phone)}`)}:</span> {phone.value}
                     </p>
                 ))}
             </div>
