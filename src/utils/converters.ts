@@ -109,6 +109,26 @@ function formatPhoneNumber(
     return number
 }
 
+function decodeQuotedPrintable(input: string, charset: string = 'utf-8'): string {
+    // 1. Remove soft line breaks (equals sign at end of line)
+    const folded = input.replace(/=\r?\n/g, '');
+
+    // 2. Extract hex values into a byte array
+    const bytes: number[] = [];
+    for (let i = 0; i < folded.length; i++) {
+        if (folded[i] === '=' && i + 2 < folded.length) {
+            const hex = folded.substring(i + 1, i + 3);
+            bytes.push(parseInt(hex, 16));
+            i += 2;
+        } else {
+            bytes.push(folded.charCodeAt(i));
+        }
+    }
+
+    // 3. Decode to UTF-8 (or other charset) using TextDecoder
+    return new TextDecoder(charset).decode(new Uint8Array(bytes));
+}
+
 export function parseFritzXml(xmlString: string): FritzContact[] {
     const parser = new DOMParser()
     const doc = parser.parseFromString(xmlString, 'application/xml')
@@ -181,11 +201,26 @@ function parseVCardLines(vcfText: string): string[] {
     const rawLines = vcfText.replace(/\r\n/g, '\n').split('\n')
     const unfolded: string[] = []
 
-    for (const rawLine of rawLines) {
-        if (/^[ \t]/.test(rawLine) && unfolded.length > 0) {
-            unfolded[unfolded.length - 1] += rawLine.trim()
+    for (let i = 0; i < rawLines.length; i++) {
+        const line = rawLines[i]
+        
+        // 1. Standard-Unfolding (indented continuation lines)
+        if (/^[ \t]/.test(line) && unfolded.length > 0) {
+            unfolded[unfolded.length - 1] += line.substring(1)
+            continue
+        }
+
+        // 2. Quoted-Printable Soft Break Unfolding (line ends with '=')
+        // Check if the line ends with '=' AND Quoted-Printable is active
+        if (line.endsWith('=') && i + 1 < rawLines.length) {
+            let combinedLine = line
+            // As long as the line ends with '=', merge the next line
+            while (combinedLine.endsWith('=') && i + 1 < rawLines.length) {
+                combinedLine = combinedLine.slice(0, -1) + rawLines[++i].trimStart()
+            }
+            unfolded.push(combinedLine)
         } else {
-            unfolded.push(rawLine)
+            unfolded.push(line)
         }
     }
 
@@ -208,10 +243,16 @@ function parseVCardBlock(block: string): VCardContact | null {
             continue
         }
 
-        const value = valueParts.join(':').trim()
+        let value = valueParts.join(':').trim()
         const [property, ...parameterParts] = keyPart.split(';')
         const propName = property.toUpperCase().trim()
         const rawParams = parameterParts.join(';')
+
+        if (rawParams.includes('ENCODING=QUOTED-PRINTABLE')) {
+            const charsetMatch = rawParams.match(/CHARSET=([^;]+)/);
+            const charset = charsetMatch ? charsetMatch[1].toLowerCase() : 'utf-8';
+            value = decodeQuotedPrintable(value, charset);
+        }
 
         if (propName === 'FN') {
             contact.fullName = value
