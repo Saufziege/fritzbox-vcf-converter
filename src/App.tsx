@@ -15,6 +15,9 @@ function App() {
     const [errorMessage, setErrorMessage] = useState("");
     const [areaCode, setAreaCode] = useState("");
     const [countryCode, setCountryCode] = useState("");
+    const [mergeDuplicates, setMergeDuplicates] = useState(true);
+    const [removeDuplicatePhones, setRemoveDuplicatePhones] = useState(true);
+    const [filterNoPhone, setFilterNoPhone] = useState(true);
 
     useEffect(() => {
         document.title = t("header.title");
@@ -47,7 +50,13 @@ function App() {
                 const result = fritzXmlToVcf(inputText);
                 setOutputText(result);
             } else {
-                const result = vcfToFritzXml(inputText, { areaCode, countryCode });
+                const result = vcfToFritzXml(inputText, {
+                    areaCode,
+                    countryCode,
+                    mergeDuplicates,
+                    removeDuplicatePhones,
+                    filterNoPhone,
+                });
                 setOutputText(result);
             }
         } catch (error) {
@@ -88,6 +97,12 @@ function App() {
                         inputText={inputText}
                         onInputChange={setInputText}
                         onConvert={handleConversion}
+                        mergeDuplicates={mergeDuplicates}
+                        onMergeDuplicatesChange={setMergeDuplicates}
+                        removeDuplicatePhones={removeDuplicatePhones}
+                        onRemoveDuplicatePhonesChange={setRemoveDuplicatePhones}
+                        filterNoPhone={filterNoPhone}
+                        onFilterNoPhoneChange={setFilterNoPhone}
                         outputText={outputText}
                         onDownload={handleDownload}
                         areaCode={areaCode}

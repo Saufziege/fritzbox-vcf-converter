@@ -33,7 +33,7 @@ const ViewToggle = ({ viewMode, setViewMode }: { viewMode: ViewMode, setViewMode
 
 export default function FileOutputSection({ outputText, onDownload }: FileOutputSectionProps) {
     const { t } = useTranslation();
-    const [viewMode, setViewMode] = useState<ViewMode>('raw');
+    const [viewMode, setViewMode] = useState<ViewMode>('preview');
 
     const renderPreview = () => {
         if (!outputText) {

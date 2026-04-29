@@ -203,7 +203,7 @@ function parseVCardLines(vcfText: string): string[] {
 
     for (let i = 0; i < rawLines.length; i++) {
         const line = rawLines[i]
-        
+
         // 1. Standard-Unfolding (indented continuation lines)
         if (/^[ \t]/.test(line) && unfolded.length > 0) {
             unfolded[unfolded.length - 1] += line.substring(1)
@@ -254,6 +254,8 @@ function parseVCardBlock(block: string): VCardContact | null {
             value = decodeQuotedPrintable(value, charset);
         }
 
+        value = unescapeVCardValue(value);
+
         if (propName === 'FN') {
             contact.fullName = value
         }
@@ -300,6 +302,81 @@ function parseVCardBlock(block: string): VCardContact | null {
     return contact
 }
 
+// Merge contacts with the same name
+function mergeContacts(contacts: VCardContact[]): VCardContact[] {
+    const mergedMap = new Map<string, VCardContact>();
+
+    for (const contact of contacts) {
+        // Create a robust key by removing commas and spaces
+        const key = unescapeVCardValue(contact.fullName)
+            .replace(/[,;]/g, ' ') // Replace punctuation with spaces
+            .replace(/\s+/g, ' ') // Collapse multiple spaces
+            .toLowerCase()
+            .trim();
+
+        if (mergedMap.has(key)) {
+            const existing = mergedMap.get(key)!;
+
+            // Merge emails, ensuring uniqueness
+            existing.emails = Array.from(new Set([...existing.emails, ...contact.emails]));
+
+            // Merge phones, assuming they are already unique within each contact
+            contact.phones.forEach(newPhone => {
+                const isDuplicate = existing.phones.some(
+                    p => getComparableNumber(p.value) === getComparableNumber(newPhone.value)
+                );
+                if (!isDuplicate) {
+                    existing.phones.push(newPhone);
+                }
+            });
+        } else {
+            // First time seeing this contact, just add it
+            mergedMap.set(key, { ...contact });
+        }
+    }
+
+    return Array.from(mergedMap.values());
+}
+
+// Cleans up contacts by removing duplicate phone numbers and optionally filtering out contacts without any phones.
+function cleanupContacts(
+    contacts: VCardContact[],
+    options: { removeDuplicatePhones?: boolean; filterIfNoPhones?: boolean },
+): VCardContact[] {
+    let cleaned = contacts;
+
+    if (options.removeDuplicatePhones) {
+        cleaned = cleaned.map(contact => {
+            const uniquePhones: VCardPhone[] = [];
+            contact.phones.forEach(phone => {
+                const isInternalDup = uniquePhones.some(
+                    up => getComparableNumber(up.value) === getComparableNumber(phone.value)
+                );
+                if (!isInternalDup) {
+                    uniquePhones.push(phone);
+                }
+            });
+            return { ...contact, phones: uniquePhones };
+        });
+    }
+
+    if (options.filterIfNoPhones) {
+        return cleaned.filter(contact => contact.phones.length > 0);
+    }
+
+    return cleaned;
+}
+
+// Helper to make numbers comparable in mergeContacts
+function getComparableNumber(num: string): string {
+    return normalizePhone(num).replace(/^\+49/, '0').replace(/^0049/, '0');
+}
+
+// Add this helper to clean VCF escape characters
+function unescapeVCardValue(value: string): string {
+    return value.replace(/\\/g, ''); // Removes all backslashes like in "\;" or "\,"
+}
+
 export function parseVCardContacts(vcfText: string): VCardContact[] {
     const contacts = vcfText
         .split('BEGIN:VCARD')
@@ -315,9 +392,20 @@ export function parseVCardContacts(vcfText: string): VCardContact[] {
 
 export function vcfToFritzXml(
     vcfText: string,
-    options?: { areaCode?: string; countryCode?: string },
+    options?: { areaCode?: string; countryCode?: string, mergeDuplicates?: boolean, removeDuplicatePhones?: boolean, filterNoPhone?: boolean },
 ): string {
-    const contacts = parseVCardContacts(vcfText)
+    let contacts = parseVCardContacts(vcfText)
+
+    // 1. Clean up individual contacts (remove duplicate numbers, filter contacts without numbers)
+    contacts = cleanupContacts(contacts, {
+        removeDuplicatePhones: !!options?.removeDuplicatePhones,
+        filterIfNoPhones: !!options?.filterNoPhone
+    });
+
+    // 2. Merge contacts with the same name if requested
+    if (options?.mergeDuplicates) {
+        contacts = mergeContacts(contacts);
+    }
 
     const xmlLines: string[] = [
         '<?xml version="1.0" encoding="UTF-8"?>',
@@ -326,13 +414,18 @@ export function vcfToFritzXml(
     ]
 
     for (const contact of contacts) {
-        const realName = contact.lastName
-            ? `${contact.lastName}, ${contact.firstName}`.trim()
-            : contact.fullName
+        const realName = (contact.lastName && contact.firstName)
+            ? `${contact.lastName}, ${contact.firstName}`
+            : contact.fullName;
+
+        const cleanedName = unescapeVCardValue(realName)
+            .replace(/[;,]/g, ' ')       // Replace semicolons AND commas with a space
+            .replace(/\s+/g, ' ')       // Collapse multiple spaces into one
+            .trim();
 
         xmlLines.push('    <contact>')
         xmlLines.push('      <person>')
-        xmlLines.push(`        <realName>${escapeXml(realName)}</realName>`)
+        xmlLines.push(`        <realName>${escapeXml(cleanedName)}</realName>`)
         xmlLines.push('      </person>')
         xmlLines.push('      <telephony>')
 
