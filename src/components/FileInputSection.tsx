@@ -39,7 +39,7 @@ export default function FileInputSection({
     onConvert,
 }: FileInputSectionProps) {
     const { t } = useTranslation();
-    const [viewMode, setViewMode] = useState<ViewMode>('raw');
+    const [viewMode, setViewMode] = useState<ViewMode>('preview');
 
     const renderPreview = () => {
         if (!inputText) {

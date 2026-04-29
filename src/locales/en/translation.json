@@ -32,6 +32,9 @@
         "title": "Options for vCard → FritzBox",
         "countryPlaceholder": "Country code (e.g. 49)",
         "areaPlaceholder": "Area code (e.g. 30)",
+        "mergeDuplicates": "Merge contacts with the same name",
+        "removeDuplicatePhones": "Remove duplicate phone numbers per contact",
+        "filterNoPhone": "Filter out contacts with no phone number",
         "hint": "When entering a country or area code, numbers in the vCards that do not already have a country or area code will be prefixed."
     },
     "errors": {

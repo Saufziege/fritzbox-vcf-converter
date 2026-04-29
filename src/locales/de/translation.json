@@ -32,6 +32,9 @@
         "title": "Optionen für vCard → FritzBox",
         "countryPlaceholder": "Landesvorwahl (z.B. 49)",
         "areaPlaceholder": "Ortsvorwahl (z.B. 30)",
+        "mergeDuplicates": "Kontakte mit gleichem Namen zusammenführen",
+        "removeDuplicatePhones": "Doppelte Telefonnummern pro Kontakt entfernen",
+        "filterNoPhone": "Kontakte ohne Telefonnummer herausfiltern",
         "hint": "Beim Eingeben einer Landes- oder Ortsvorwahl werden Zahlen in den vCards, die noch keine Vorwahl haben, damit ergänzt."
     },
     "errors": {
